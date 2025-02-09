@@ -1,0 +1,1 @@
+# Adaptus2-cms

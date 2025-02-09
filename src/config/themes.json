@@ -1,0 +1,94 @@
+{
+  "themes": {
+    "light": {
+      "name": "Light",
+      "colors": {
+        "primary": "bg-white",
+        "secondary": "bg-gray-50",
+        "text": "text-gray-900",
+        "secondaryText": "text-gray-600",
+        "accent": "bg-indigo-600",
+        "hover": "hover:bg-gray-100",        
+        "border": "border border-gray-200",
+        "modalOverlay": "bg-black/50",
+        "modalBackground": "bg-white",
+        "shadow": ""
+      }
+    },
+    "dark": {
+      "name": "Dark",
+      "colors": {
+        "primary": "bg-gray-900",
+        "secondary": "bg-gray-800",
+        "text": "text-gray-100",
+        "secondaryText": "text-gray-400",
+        "accent": "bg-indigo-500",
+        "hover": "hover:bg-gray-700",
+        "border": "border border-white",
+        "modalOverlay": "bg-white/50",
+        "modalBackground": "bg-black",
+        "shadow": ""
+      }
+    },
+    "blue": {
+      "name": "Blue",
+      "colors": {
+        "primary": "bg-blue-800",
+        "secondary": "bg-blue-700",
+        "text": "text-blue-50",
+        "secondaryText": "text-blue-200",
+        "accent": "bg-blue-500",
+        "hover": "hover:bg-blue-600",
+        "border": "border border-blue-400",
+        "modalOverlay": "bg-black/75",
+        "modalBackground": "bg-blue-800",
+        "shadow": ""
+      }
+    },
+    "green": {
+      "name": "Green",
+      "colors": {
+        "primary": "bg-emerald-800",
+        "secondary": "bg-emerald-700",
+        "text": "text-emerald-50",
+        "secondaryText": "text-emerald-200",
+        "accent": "bg-emerald-500",
+        "hover": "hover:bg-emerald-600",
+        "border": "border border-emerald-400",
+        "modalOverlay": "bg-black/75",
+        "modalBackground": "bg-emerald-800",
+        "shadow": ""
+      }
+    },
+    "purple": {
+      "name": "Purple",
+      "colors": {
+        "primary": "bg-purple-800",
+        "secondary": "bg-purple-700",
+        "text": "text-purple-50",
+        "secondaryText": "text-purple-200",
+        "accent": "bg-purple-500",
+        "hover": "hover:bg-purple-600",
+        "border": "border border-purple-400",
+        "modalOverlay": "bg-black/75",
+        "modalBackground": "bg-purple-800",
+        "shadow": ""
+      }
+    },
+    "orange": {
+      "name": "Orange",
+      "colors": {
+        "primary": "bg-orange-800",
+        "secondary": "bg-orange-700",
+        "text": "text-orange-50",
+        "secondaryText": "text-orange-200",
+        "accent": "bg-orange-500",
+        "hover": "hover:bg-orange-600",
+        "border": "border border-orange-400",
+        "modalOverlay": "bg-black/75",
+        "modalBackground": "bg-orange-800",
+        "shadow": ""
+      }
+    }
+  }
+}

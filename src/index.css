@@ -1,0 +1,102 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --theme-transition-duration: 200ms;
+  }
+
+  body {
+    @apply antialiased;
+    transition: background-color var(--theme-transition-duration) ease-in-out,
+                color var(--theme-transition-duration) ease-in-out;
+  }
+
+  /* Theme transitions */
+  *, *::before, *::after {
+    transition-property: background-color, border-color, color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: var(--theme-transition-duration);
+  }
+
+  /* Remove transition from elements where it might cause issues */
+  .notransition {
+    transition: none !important;
+  }
+
+  /* Focus styles */
+  :focus-visible {
+    @apply outline-none ring-2 ring-indigo-500 ring-opacity-50;
+  }
+
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 rounded hover:bg-gray-500;
+  }
+
+  /* Modal backdrop */
+  .modal-backdrop {
+    backdrop-filter: blur(4px);
+  }
+
+  /* Form elements */
+  input, select, textarea {
+    @apply transition-shadow duration-200;
+  }
+
+  input:disabled, select:disabled, textarea:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Button focus states */
+  button:focus {
+    @apply outline-none;
+  }
+
+  button:focus-visible {
+    @apply ring-2 ring-indigo-500 ring-opacity-50;
+  }
+}
+
+/* Theme-specific styles */
+.light {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Loading states */
+.loading {
+  @apply animate-pulse;
+}
+
+/* Error states */
+.error-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes shake {
+  10%, 90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+  20%, 80% {
+    transform: translate3d(2px, 0, 0);
+  }
+  30%, 50%, 70% {
+    transform: translate3d(-2px, 0, 0);
+  }
+  40%, 60% {
+    transform: translate3d(2px, 0, 0);
+  }
+}
