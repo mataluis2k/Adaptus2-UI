@@ -37,10 +37,10 @@ export const DefaultField: React.FC<DefaultFieldProps> = ({
       </label>
       <input
         {...field}
-        value={displayValue}
+        value={type === 'file' ? undefined : displayValue}
         type={type}
         id={name}
-        placeholder={placeholder}
+        placeholder={type === 'file' ? undefined : placeholder}
         readOnly={readonly}
         className={`
           mt-1 block w-full rounded-md shadow-sm 

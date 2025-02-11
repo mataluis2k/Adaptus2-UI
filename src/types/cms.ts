@@ -1,6 +1,6 @@
 import { ThemeName } from '../components/theme/ThemeProvider';
 
-export type ViewType = 'table' | 'grid' | 'list';
+export type ViewType = 'table' | 'grid' | 'list' | 'video-gallery';
 
 export interface FieldValidation {
   required?: boolean;
@@ -15,12 +15,13 @@ export interface FieldUI {
 }
 
 export interface FieldConfig {
-  type: 'text' | 'number' | 'file' | 'string' | 'textarea' | 'checkbox';
+  type: 'text' | 'number' | 'file' | 'string' | 'textarea' | 'checkbox' | 'enum' | 'date' | 'datetime' | 'time' | 'json' | 'array' | 'object' | 'relation';
   label: string;
   hidden?: boolean;
   readonly?: boolean;
   validation?: FieldValidation;
   ui?: FieldUI;
+  values?: string[];
 }
 
 export interface ListView {

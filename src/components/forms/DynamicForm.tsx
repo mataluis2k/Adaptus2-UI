@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { useCMSStore } from '../../store/cms';
 import { FieldConfig } from '../../types/cms';
 import { DefaultField } from './fields/DefaultField';
+import { EnumField } from './fields/EnumField';
 import { WYSIWYGField } from './fields/WYSIWYGField';
 import { ImageField } from './fields/ImageField';
 import { VideoField } from './fields/VideoField';
@@ -53,6 +54,18 @@ export const DynamicForm = ({ tableId, initialData, onSubmit }: DynamicFormProps
           fieldSchema = schema;
           break;
         }
+        case 'enum': {
+          if (field.values && Array.isArray(field.values)) {
+            // z.enum expects a tuple; cast the values array accordingly.
+            fieldSchema = z.enum(field.values as [string, ...string[]]);
+            if (!field.validation?.required) {
+              fieldSchema = fieldSchema.optional();
+            }
+          } else {
+            fieldSchema = z.string();
+          }
+          break;
+        }
         case 'number': {
           let schema = z.string()
             .transform((val) => (val === '' ? undefined : Number(val)))
@@ -70,9 +83,25 @@ export const DynamicForm = ({ tableId, initialData, onSubmit }: DynamicFormProps
           break;
         }
         case 'file': {
-          fieldSchema = field.validation?.required
-            ? z.instanceof(File, { message: 'File is required' })
-            : z.instanceof(File).optional();
+          if (field.validation?.required) {
+            fieldSchema = z
+              .any()
+              .refine(
+                (val) =>
+                  val &&
+                  val instanceof FileList &&
+                  val.length > 0,
+                { message: 'File is required' }
+              )
+              .transform((val) => (val as FileList)[0]);
+          } else {
+            fieldSchema = z
+              .any()
+              .optional()
+              .transform((val) =>
+                val && val instanceof FileList && val.length > 0 ? (val as FileList)[0] : undefined
+              );
+          }
           break;
         }
         default:
@@ -150,6 +179,15 @@ export const DynamicForm = ({ tableId, initialData, onSubmit }: DynamicFormProps
           />
         );
       default:
+        if (fieldConfig.type === 'enum' && Array.isArray(fieldConfig.values)) {
+          return (
+            <EnumField
+              key={`${tableId}-${fieldName}`}
+              {...commonProps}
+              values={fieldConfig.values}
+            />
+          );
+        }
         return (
           <DefaultField
             key={`${tableId}-${fieldName}`}

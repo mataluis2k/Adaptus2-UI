@@ -4,6 +4,7 @@ import { useCMSStore } from '../../store/cms';
 import { TableView } from './TableView';
 import { GridView } from './GridView';
 import { ListView } from './ListView';
+import VideoGallery from '../VideoGallery/VideoGallery';
 import { ErrorBoundary } from '../ErrorBoundary';
 import { ViewType } from '../../types/cms';
 
@@ -32,6 +33,9 @@ const ViewContent = () => {
     case 'table':
       console.log('Rendering TableView');
       return <TableView />;
+    case 'video-gallery':
+      console.log('Rendering VideoGallery');
+      return <VideoGallery />;
     default:
       console.warn(`Unknown view type: ${viewType}, falling back to TableView`);
       return <TableView />;

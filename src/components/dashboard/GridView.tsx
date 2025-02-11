@@ -170,49 +170,76 @@ const GridContent = () => {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRecords.map((record) => (
-              <div
-                key={record.id}
-                className={`${themeClasses.modalBackground} rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] duration-200`}
-              >
-                <div className="p-4">
-                  {displayFields.map((field) => (
-                    <div key={field} className="mb-2">
-                      <div className={`text-sm font-medium ${themeClasses.secondaryText}`}>
-                        {table.fields[field].label}
-                      </div>
-                      <div className={`${themeClasses.text} break-words`}>
-                        {record[field] != null ? String(record[field]) : ''}
-                      </div>
-                    </div>
-                  ))}
-                </div>
+{filteredRecords.map((record) => (
+  <div
+    key={record.id}
+    className={`${themeClasses.modalBackground} rounded-lg shadow-md overflow-hidden transition-transform hover:scale-[1.02] duration-200`}
+  >
+    {/* Hero Content */}
+    <div className="w-full">
+    {record.mediaType === 'video' ? (
+  <video 
+    className="w-full" 
+    controls
+    poster={record.posterUrl ? record.posterUrl : undefined}
+    preload="metadata" // optional preload attribute to load metadata
+  >
+    <source src={record.heroUrl} type="video/mp4" />
+    Your browser does not support the video tag.
+  </video>
+) : (
+  <img
+    className="w-full"
+    src={record.heroUrl}
+    alt={record.name || 'Hero Content'}
+  />
+)}
+    </div>
 
-                {/* Actions */}
-                {(table.permissions.write || table.permissions.delete) && (
-                  <div className={`px-4 py-3 ${themeClasses.secondary} border-t ${themeClasses.border} flex justify-end space-x-2`}>
-                    {table.permissions.write && (
-                      <button 
-                        onClick={() => setModal({ isOpen: true, mode: 'edit', recordId: record.id })}
-                        className={`${themeClasses.accent} hover:opacity-90 p-2 rounded-full transition-opacity`}
-                        title="Edit"
-                      >
-                        <Pencil className="h-4 w-4 text-white" />
-                      </button>
-                    )}
-                    {table.permissions.delete && (
-                      <button
-                        onClick={() => handleDelete(record.id)}
-                        className="text-red-600 hover:opacity-90 p-2 rounded-full transition-opacity"
-                        title="Delete"
-                      >
-                        <Trash className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-            ))}
+    {/* Card Content */}
+    <div className="p-4">
+      {displayFields.map((field) => (
+        <div key={field} className="mb-2">
+          <div className={`text-sm font-medium ${themeClasses.secondaryText}`}>
+            {table.fields[field].label}
+          </div>
+          <div className={`${themeClasses.text} break-words`}>
+            {record[field] != null ? String(record[field]) : ''}
+          </div>
+        </div>
+      ))}
+    </div>
+
+    {/* Actions */}
+    {(table.permissions.write || table.permissions.delete) && (
+      <div
+        className={`px-4 py-3 ${themeClasses.secondary} border-t ${themeClasses.border} flex justify-end space-x-2`}
+      >
+        {table.permissions.write && (
+          <button
+            onClick={() =>
+              setModal({ isOpen: true, mode: 'edit', recordId: record.id })
+            }
+            className={`${themeClasses.accent} hover:opacity-90 p-2 rounded-full transition-opacity`}
+            title="Edit"
+          >
+            <Pencil className="h-4 w-4 text-white" />
+          </button>
+        )}
+        {table.permissions.delete && (
+          <button
+            onClick={() => handleDelete(record.id)}
+            className="text-red-600 hover:opacity-90 p-2 rounded-full transition-opacity"
+            title="Delete"
+          >
+            <Trash className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+    )}
+  </div>
+))}
+
           </div>
         )}
       </div>
