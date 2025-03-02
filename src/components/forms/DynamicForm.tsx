@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import React, { useEffect, useState } from 'react';
+import { useForm, Control, UseFormReturn } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useCMSStore } from '../../store/cms';
@@ -11,6 +11,7 @@ import { ImageField } from './fields/ImageField';
 import { VideoField } from './fields/VideoField';
 import { BaseFieldProps } from './fields/types';
 import { getThemeClasses } from '../theme/ThemeProvider';
+import EnhancedWYSIWYGModal from './EnhancedWYSIWYGModal';
 
 interface DynamicFormProps {
   tableId: string;
@@ -19,6 +20,8 @@ interface DynamicFormProps {
 }
 
 export const DynamicForm = ({ tableId, initialData, onSubmit }: DynamicFormProps) => {
+  const [wysiwygModalOpen, setWysiwygModalOpen] = useState(false);
+  const [currentWysiwygField, setCurrentWysiwygField] = useState<{ name: string; value: string } | null>(null);
   const config = useCMSStore((state) => state.config);
   const theme = useCMSStore((state) => state.theme);
   const themeClasses = getThemeClasses(theme);
@@ -121,6 +124,8 @@ export const DynamicForm = ({ tableId, initialData, onSubmit }: DynamicFormProps
     handleSubmit,
     control,
     reset,
+    getValues,
+    setValue,
     formState: { errors },
   } = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -158,10 +163,26 @@ export const DynamicForm = ({ tableId, initialData, onSubmit }: DynamicFormProps
     switch (fieldConfig.ui?.template) {
       case 'wysiwyg':
         return (
-          <WYSIWYGField
-            key={`${tableId}-${fieldName}`}
-            {...commonProps}
-          />
+          <div key={`${tableId}-${fieldName}`} className="mb-4">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {fieldConfig.label}
+              {fieldConfig.validation?.required && <span className="text-red-500 ml-1">*</span>}
+            </label>
+            <div className="flex items-center space-x-2">
+              <WYSIWYGField {...commonProps} />
+              <button
+                type="button"
+                onClick={() => {
+                  setCurrentWysiwygField({ name: fieldName, value: getValues(fieldName) || '' });
+                  setWysiwygModalOpen(true);
+                }}
+                className={`px-3 py-1 ${themeClasses.accent} text-white rounded hover:opacity-90 transition-opacity`}
+              >
+                Edit Rich Text
+              </button>
+            </div>
+            {error && <div className="text-red-500 mt-1 text-sm">{error}</div>}
+          </div>
         );
       case 'image-uploader':
         return (
@@ -222,16 +243,37 @@ export const DynamicForm = ({ tableId, initialData, onSubmit }: DynamicFormProps
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      {renderTabs()}
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className={`px-4 py-2 ${themeClasses.accent} text-white rounded-md hover:opacity-90 transition-opacity`}
-        >
-          Save
-        </button>
-      </div>
-    </form>
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {renderTabs()}
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className={`px-4 py-2 ${themeClasses.accent} text-white rounded-md hover:opacity-90 transition-opacity`}
+          >
+            Save
+          </button>
+        </div>
+      </form>
+      
+      <EnhancedWYSIWYGModal
+        isOpen={wysiwygModalOpen}
+        initialContent={currentWysiwygField?.value || ''}
+        onSave={(content) => {
+          if (currentWysiwygField) {
+            setValue(currentWysiwygField.name, content, {
+              shouldValidate: true,
+              shouldDirty: true
+            });
+          }
+          setWysiwygModalOpen(false);
+          setCurrentWysiwygField(null);
+        }}
+        onClose={() => {
+          setWysiwygModalOpen(false);
+          setCurrentWysiwygField(null);
+        }}
+      />
+    </>
   );
 };

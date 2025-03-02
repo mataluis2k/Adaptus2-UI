@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { App } from './App';
 import './index.css';
+import 'react-quill/dist/quill.snow.css';
+
 
 const root = document.getElementById('root');
 if (!root) {
