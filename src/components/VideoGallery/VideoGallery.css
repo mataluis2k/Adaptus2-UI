@@ -123,3 +123,33 @@
   opacity: 0.9;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
 }
+/* Add these styles to your existing VideoGallery.css file */
+
+.video-source-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  color: white;
+}
+
+.video-source-badge.youtube {
+  background-color: #ff0000;
+}
+
+.video-source-badge.vimeo {
+  background-color: #1ab7ea;
+}
+
+/* Make sure iframe has the same styling as video element */
+iframe.video-player {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}

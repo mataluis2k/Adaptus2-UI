@@ -14,14 +14,57 @@ export interface Video extends BaseRecord {
   videoID: string;
   name: string;
   description: string;
-  source: string;
+  source: string; // Can be 'local', 'youtube', 'vimeo'
   filename: string;
   hero: string;
   heroUrl: string;
   labels: string;
   posterUrl: string;
   mediaType: string;
+  // For external videos
+  externalVideoId?: string; // YouTube or Vimeo ID
 }
+
+const VideoPlayer: React.FC<{ video: Video }> = ({ video }) => {
+  // Get a valid video ID, falling back to videoID if externalVideoId is missing
+  const videoId = video.externalVideoId || video.videoID;
+  
+  // Handle different video sources, but ensure we have a valid ID
+  if (video.source === 'youtube' && videoId) {
+    return (
+      <iframe
+        src={`https://www.youtube.com/embed/${videoId}`}
+        className="video-player"
+        frameBorder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  } else if (video.source === 'vimeo' && videoId) {
+    return (
+      <iframe
+        src={`https://player.vimeo.com/video/${videoId}`}
+        className="video-player"
+        frameBorder="0"
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowFullScreen
+      />
+    );
+  } else {
+    // Default to local video player or show a placeholder if heroUrl is missing
+    return (
+      <video
+        src={video.heroUrl || ''}
+        poster={video.posterUrl || ''}
+        controls
+        className="video-player"
+      >
+        <source src={video.heroUrl || ''} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    );
+  }
+};
 
 const VideoGalleryContent: React.FC = () => {
   const { tableId } = useParams<{ tableId: string }>();
@@ -55,12 +98,43 @@ const VideoGalleryContent: React.FC = () => {
         if (!Array.isArray(data.data)) {
           data.data = [data.data];
         }
-        data.data = data.data.map(video => ({
-          ...video,
-          heroUrl: video.heroUrl || `http://localhost:5173/stream/${video.videoID}`,
-          posterUrl: video.posterUrl || `http://localhost:5173/img/${video.hero}`,
-          mediaType: 'video'
-        }));
+        data.data = data.data.map(video => {
+          const processed = {
+            ...video,
+            // For backward compatibility
+            source: video.source || 'local',
+            mediaType: video.mediaType || 'video'
+          };
+          
+          // Ensure we have a valid videoID
+          processed.videoID = processed.videoID || '';
+          
+          // Set poster and video URLs based on source
+          if (processed.source === 'local') {
+            processed.heroUrl = processed.heroUrl || (processed.videoID ? `http://localhost:5173/stream/${processed.videoID}` : '');
+            processed.posterUrl = processed.posterUrl || (processed.hero ? `http://localhost:5173/img/${processed.hero}` : '');
+          } else if (processed.source === 'youtube' || processed.source === 'vimeo') {
+            // Get the video ID (from externalVideoId or fallback to videoID)
+            const videoId = processed.externalVideoId || processed.videoID;
+            
+            // For YouTube/Vimeo, we'll use their thumbnails if no local poster is specified
+            if (!processed.posterUrl && videoId) {
+              if (processed.source === 'youtube') {
+                processed.posterUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+              }
+              // For Vimeo, we'll use a default placeholder if no poster is provided
+              // (Vimeo requires an API call to get the thumbnail)
+              else if (processed.source === 'vimeo') {
+                processed.posterUrl = processed.posterUrl || '/assets/vimeo-placeholder.jpg';
+              }
+            }
+            
+            // Store the videoId for consistent reference
+            processed.externalVideoId = videoId;
+          }
+          
+          return processed;
+        });
         return data;
       } catch (err) {
         const apiError = handleApiError(err);
@@ -110,8 +184,22 @@ const VideoGalleryContent: React.FC = () => {
             }`}
             onClick={() => handleSelectVideo(video)}
           >
-            <img src={video.posterUrl} alt={video.name} className="video-hero" />
+            <img 
+              src={video.posterUrl || '/assets/default-video-thumbnail.jpg'} 
+              alt={video.name} 
+              className="video-hero"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.onerror = null;
+                target.src = '/assets/default-video-thumbnail.jpg';
+              }} 
+            />
             <div className={`video-title ${themeClasses.text}`}>{video.name}</div>
+            {video.source !== 'local' && (
+              <div className={`video-source-badge ${video.source}`}>
+                {video.source}
+              </div>
+            )}
           </div>
         ))}
       </div>
@@ -120,16 +208,16 @@ const VideoGalleryContent: React.FC = () => {
       <div className={`main ${themeClasses.modalBackground}`}>
         {selectedVideo ? (
           <div className="video-player-container">
-            <video
-              src={selectedVideo.heroUrl}
-              poster={selectedVideo.posterUrl}
-              controls
-              className="video-player"
-            />
+            <VideoPlayer video={selectedVideo} />
             <div className="video-info">
               <div className="video-details">
                 <h2 className={themeClasses.text}>{selectedVideo.name}</h2>
                 <p className={themeClasses.secondaryText}>{selectedVideo.description}</p>
+                {selectedVideo.source !== 'local' && (
+                  <span className={`${themeClasses.secondaryText} text-sm`}>
+                    Source: {selectedVideo.source}
+                  </span>
+                )}
               </div>
               <div
                 className="edit-icon"

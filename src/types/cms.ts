@@ -1,6 +1,6 @@
 import { ThemeName } from '../components/theme/ThemeProvider';
 
-export type ViewType = 'table' | 'grid' | 'list' | 'video-gallery';
+export type ViewType = 'table' | 'grid' | 'list' | 'video-gallery' | 'ml-analysis';
 
 export interface FieldValidation {
   required?: boolean;
@@ -40,6 +40,7 @@ export interface TableConfig {
   title: string;
   route: string;
   dbTable?: string;
+  mlmodel?: string[];
   fields: Record<string, FieldConfig>;
   listView: ListView;
   detailView: DetailView;

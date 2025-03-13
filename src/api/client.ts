@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 // Create axios instance with default config
 export const api = axios.create({
-  baseURL: import.meta.env.ADAPTUS2_URL || '',
+  baseURL: import.meta.env.ADAPTUS2_URL || 'http://localhost:5173',
   headers: {
     'Content-Type': 'application/json',
   },
