@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { DashboardLayout } from './components/layout/DashboardLayout';
@@ -70,6 +70,17 @@ const AppRoutes = () => {
 
 export const App = () => {
   console.log('App rendering');
+  const setToken = useAuthStore((state) => state.setToken);
+  
+  // Initialize auth from localStorage if token exists
+  useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      console.log('Found token in localStorage, initializing auth state');
+      setToken(storedToken);
+    }
+  }, [setToken]);
+
   return (
     <BrowserRouter>
       <QueryClientProvider client={queryClient}>

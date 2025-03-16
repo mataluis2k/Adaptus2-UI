@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { User } from '../types/cms';
+import type { AuthResponse } from '../types/api';
+
+type User = AuthResponse['user'];
 
 interface AuthState {
   token: string | null;
@@ -15,9 +17,15 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       token: null,
       user: null,
-      setToken: (token) => set({ token }),
+      setToken: (token) => {
+        localStorage.setItem('token', token);
+        set({ token });
+      },
       setUser: (user) => set({ user }),
-      logout: () => set({ token: null, user: null }),
+      logout: () => {
+        localStorage.removeItem('token');
+        set({ token: null, user: null });
+      },
     }),
     {
       name: 'auth-storage',
