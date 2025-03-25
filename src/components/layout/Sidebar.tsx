@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCMSStore } from '../../store/cms';
 import { getThemeClasses } from '../theme/ThemeProvider';
-import { LayoutDashboard } from 'lucide-react';
+import { LayoutDashboard, Settings, Server } from 'lucide-react';
 
 export const Sidebar = () => {
   const config = useCMSStore((state) => state.config);
@@ -34,6 +34,13 @@ export const Sidebar = () => {
             <LayoutDashboard className="h-5 w-5 mr-3" />
             Dashboard
           </Link>
+
+          <div className="py-2">
+            <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Content
+            </h2>
+          </div>
+          
           {tables.map(([id, table]) => (
             <Link
               key={id}
@@ -47,6 +54,36 @@ export const Sidebar = () => {
               {table.title}
             </Link>
           ))}
+          
+          <div className="py-2 mt-4">
+            <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Administration
+            </h2>
+          </div>
+          
+          <Link
+            to="/api-configurator"
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              location.pathname.startsWith('/api-configurator')
+                ? `${themeClasses.accent} text-white`
+                : `${themeClasses.text} ${themeClasses.hover}`
+            }`}
+          >
+            <Server className="h-5 w-5 mr-3" />
+            API Configurator
+          </Link>
+          
+          <Link
+            to="/settings"
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              location.pathname === '/settings'
+                ? `${themeClasses.accent} text-white`
+                : `${themeClasses.text} ${themeClasses.hover}`
+            }`}
+          >
+            <Settings className="h-5 w-5 mr-3" />
+            Settings
+          </Link>
         </div>
       </nav>
     </div>

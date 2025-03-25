@@ -57,6 +57,8 @@ const VideoGalleryContent: React.FC = () => {
         }
         data.data = data.data.map(video => ({
           ...video,
+          // Ensure each video has an id (use videoID as fallback)
+          id: video.id || video.videoID || `video-${Math.random().toString(36).substr(2, 9)}`,
           heroUrl: video.heroUrl || `http://localhost:5173/stream/${video.videoID}`,
           posterUrl: video.posterUrl || `http://localhost:5173/img/${video.hero}`,
           mediaType: 'video'

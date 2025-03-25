@@ -8,6 +8,7 @@ import { ThemeProvider } from './components/theme/ThemeProvider';
 import { useCMSStore } from './store/cms';
 import { useAuthStore } from './store/auth';
 import { LoginForm } from './components/auth/LoginForm';
+import { APIConfiguratorRoutes } from './components/api-configurator/APIConfiguratorRoutes';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -64,6 +65,16 @@ const AppRoutes = () => {
           <Route path=":tableId" element={<ContentView />} />
         </Route>
       </Route>
+      
+      {/* API Configurator Routes */}
+      <Route
+        path="/api-configurator/*"
+        element={
+          <ProtectedRoute>
+            <APIConfiguratorRoutes />
+          </ProtectedRoute>
+        }
+      />
     </Routes>
   );
 };
