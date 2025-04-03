@@ -33,10 +33,10 @@ export const APIConfigList: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (typeof fetchConfigurations === 'function') {
+    if (typeof fetchConfigurations === 'function'  && !isDirty) {
       fetchConfigurations();
     }
-  }, [fetchConfigurations]);
+  }, [fetchConfigurations, isDirty]);
 
   const handleDelete = (endpoint: APIConfig) => {
     setEndpointToDelete(endpoint);

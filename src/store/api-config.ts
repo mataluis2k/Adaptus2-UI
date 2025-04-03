@@ -128,7 +128,7 @@ export const useAPIConfigStore = create<APIConfigStore>((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       // Send the entire array to be saved
-      await axios.put('/api/xy/cmsConfig.json', get().configurations);
+      await axios.post('/api-configurator/save', get().configurations);
       
       // Update original after save to reset dirty state
       set(state => ({ 

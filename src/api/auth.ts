@@ -20,3 +20,11 @@ export const logout = async (): Promise<void> => {
     useAuthStore.getState().logout();
   }
 };
+// Add these new social auth methods
+export const initiateGoogleLogin = () => {
+  window.location.href = '/auth/google';
+};
+
+export const initiateFacebookLogin = () => {
+  window.location.href = '/auth/facebook';
+};

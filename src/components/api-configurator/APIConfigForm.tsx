@@ -199,7 +199,9 @@ export const APIConfigForm: React.FC<APIConfigFormProps> = ({ isNew }) => {
       updateConfiguration(processedFormData);
     }
     
-    navigate('/api-configurator');
+    setTimeout(() => {
+      navigate('/api-configurator');
+    }, 100);
   };
 
   const renderMLSection = () => {

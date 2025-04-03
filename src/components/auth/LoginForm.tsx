@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { Lock } from 'lucide-react';
 import { login } from '../../api/auth';
 import { useAuthStore } from '../../store/auth';
+import { initiateGoogleLogin, initiateFacebookLogin } from '../../api/auth';
+import { FaGoogle, FaFacebook } from 'react-icons/fa';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -79,6 +81,23 @@ export const LoginForm = () => {
             {isSubmitting ? 'Signing in...' : 'Sign in'}
           </button>
         </form>
+        <div className="flex flex-col space-y-4">
+      <button
+        onClick={initiateGoogleLogin}
+        className="flex items-center justify-center px-4 py-2 bg-white border border-gray-300 rounded shadow hover:bg-gray-100 transition"
+      >
+        <FaGoogle className="mr-2 text-red-500" size={20} />
+        Login with Google
+      </button>
+
+      <button
+        onClick={initiateFacebookLogin}
+        className="flex items-center justify-center px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700 transition"
+      >
+        <FaFacebook className="mr-2" size={20} />
+        Login with Facebook
+      </button>
+    </div>
       </div>
     </div>
   );

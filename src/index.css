@@ -100,3 +100,121 @@
     transform: translate3d(2px, 0, 0);
   }
 }
+.cm-editor {
+  height: 100%;
+  font-family: monospace;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+/* Active line highlight */
+.cm-activeLine {
+  background-color: rgba(0, 119, 255, 0.05);
+}
+
+/* Line number styling */
+.cm-gutters {
+  background-color: #f5f5f5;
+  color: #6e7781;
+  border: none;
+  border-right: 1px solid #ddd;
+  min-width: 32px;
+  text-align: right;
+}
+
+.cm-lineNumbers .cm-gutterElement {
+  padding: 0 3px 0 5px;
+  min-width: 20px;
+}
+
+.cm-activeLineGutter {
+  background-color: rgba(0, 119, 255, 0.1);
+  color: #0366d6;
+}
+
+/* Syntax highlighting */
+.cm-keyword {
+  color: #5c6bc0;
+  font-weight: bold;
+}
+
+.cm-atom {
+  color: #8e44ad;
+  font-weight: 500;
+}
+
+.cm-variableName {
+  color: #26a69a;
+}
+
+.cm-string {
+  color: #ef5350;
+}
+
+.cm-comment {
+  color: #546e7a;
+  font-style: italic;
+}
+
+.cm-function {
+  color: #ec407a;
+}
+
+.cm-number {
+  color: #ff9800;
+}
+
+.cm-operator {
+  color: #78909c;
+}
+
+/* Tooltip styling */
+.cm-tooltip-doc {
+  border: 1px solid #ddd;
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 4px;
+  max-width: 400px;
+  font-size: 13px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* Autocomplete styling */
+.cm-tooltip.cm-tooltip-autocomplete {
+  border: 1px solid #ddd;
+  background-color: white;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-size: 14px;
+  padding: 2px 0;
+  max-height: 300px;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li {
+  padding: 4px 8px;
+  display: flex;
+  align-items: center;
+}
+
+.cm-tooltip.cm-tooltip-autocomplete > ul > li[aria-selected] {
+  background-color: #1185bb;
+}
+
+.cm-completionLabel {
+  font-weight: 500;
+}
+
+.cm-completionDetail {
+  color: #888;
+  font-size: 12px;
+  margin-left: 10px;
+}
+
+.cm-scroller {
+  overflow: auto;
+  height: 100%;
+}
