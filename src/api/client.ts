@@ -1,5 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import { useNavigate } from 'react-router-dom';
+import React from 'react';
 import { useAuthStore } from '../store/auth';
 
 // Create axios instance with default config
@@ -20,8 +21,9 @@ export interface ApiError {
 // Error handler hook
 export const useApiErrorHandler = () => {
   const navigate = useNavigate();
-
-  return (error: unknown) => {
+  
+  // Create a stable function reference that doesn't change on re-renders
+  const stableErrorHandler = React.useCallback((error: unknown) => {
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<{ message?: string }>;
       const status = axiosError.response?.status;
@@ -89,7 +91,9 @@ export const useApiErrorHandler = () => {
       code: 'UNKNOWN_ERROR',
       status: 500
     };
-  };
+  }, [navigate]);
+  
+  return stableErrorHandler;
 };
 
 // Request interceptor

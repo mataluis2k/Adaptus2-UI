@@ -71,7 +71,7 @@ const AppRoutes = () => {
       >
         {/* <Route index element={<Navigate to="/tables" replace />} /> */}
         <Route index element={<EndpointAnalyticsDashboard />} />
-        <Route index element={<EcommerceAnalyticsDashboard />} />
+        <Route path="ecommerce" element={<EcommerceAnalyticsDashboard />} />
         <Route path="tables">
           <Route index element={<ListView />} />
           <Route path=":tableId" element={<ContentView />} />

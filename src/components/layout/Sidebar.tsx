@@ -35,7 +35,19 @@ export const Sidebar = () => {
             }`}
           >
             <LayoutDashboard className="h-5 w-5 mr-3" />
-            Dashboard
+            API Analytics
+          </Link>
+
+          <Link
+            to="/ecommerce"
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              location.pathname === '/ecommerce'
+                ? `${themeClasses.accent} text-white`
+                : `${themeClasses.text} ${themeClasses.hover}`
+            }`}
+          >
+            <LayoutDashboard className="h-5 w-5 mr-3" />
+            E-commerce Analytics
           </Link>
 
           <div className="py-2">
@@ -110,7 +122,7 @@ export const Sidebar = () => {
         </div>
           {/* Agent Management Section */}
           <div>
-            <h3 className={`px-4 text-xs font-semibold uppercase tracking-wider ${themeClasses.textMuted}`}>
+            <h3 className={`px-4 text-xs font-semibold uppercase tracking-wider ${themeClasses.secondaryText}`}>
               Agent Configuration
             </h3>
             <div className="mt-2 space-y-1">
