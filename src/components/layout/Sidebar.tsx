@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCMSStore } from '../../store/cms';
 import { getThemeClasses } from '../theme/ThemeProvider';
-import { LayoutDashboard, Settings, Server, Users, LogOut } from 'lucide-react';
+import { LayoutDashboard, Settings, Server, Users, LogOut, Database } from 'lucide-react';
 import { logout } from '../../api/auth';
 
 export const Sidebar = () => {
@@ -16,6 +16,15 @@ export const Sidebar = () => {
   if (!config) return null;
 
   const tables = Object.entries(config.cms.tables);
+
+  const navigationItems = [
+    {
+      name: 'SQL Builder',
+      href: '/sql-builder',
+      icon: Database,
+      current: location.pathname === '/sql-builder',
+    },
+  ];
 
   return (
     <div className={`w-64 flex-shrink-0 ${themeClasses.primary} border-r ${themeClasses.border}`}>
@@ -49,6 +58,8 @@ export const Sidebar = () => {
             <LayoutDashboard className="h-5 w-5 mr-3" />
             E-commerce Analytics
           </Link>
+
+       
 
           <div className="py-2">
             <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
@@ -107,8 +118,18 @@ export const Sidebar = () => {
             <Server className="h-5 w-5 mr-3" />
             SDUI Builder
           </Link>
-
           <Link
+            to="/sql-builder"
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              location.pathname === '/sql-builder'
+                ? `${themeClasses.accent} text-white`
+                : `${themeClasses.text} ${themeClasses.hover}`
+            }`}
+          >
+            <Database className="h-5 w-5 mr-3" />
+            SQL Builder
+          </Link>
+          {/* <Link
             to="/settings"
             className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
               location.pathname === '/settings'
@@ -118,9 +139,8 @@ export const Sidebar = () => {
           >
             <Settings className="h-5 w-5 mr-3" />
             Settings
-          </Link>
+          </Link> */}
         </div>
-          {/* Agent Management Section */}
           <div>
             <h3 className={`px-4 text-xs font-semibold uppercase tracking-wider ${themeClasses.secondaryText}`}>
               Agent Configuration
@@ -137,10 +157,20 @@ export const Sidebar = () => {
                 <Users className="h-5 w-5 mr-3" />
                 Agent Profiles
               </Link>
+              <Link
+                to="/agent-workflows"
+                className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+                  isActive('/agent-workflows')
+                    ? `${themeClasses.accent} text-white`
+                    : `${themeClasses.text} ${themeClasses.hover}`
+                }`}
+              >
+                <Server className="h-5 w-5 mr-3" />
+                Agent Workflows
+              </Link>
             </div>
           </div>
           
-          {/* Logout Section */}
           <div className="mt-8 border-t pt-4">
             <button
               onClick={() => logout()}
@@ -154,3 +184,5 @@ export const Sidebar = () => {
     </div>
   );
 };
+
+export default Sidebar;

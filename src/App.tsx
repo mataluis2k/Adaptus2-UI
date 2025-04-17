@@ -15,9 +15,11 @@ import DslEditor from './components/rules/DslEditor';
 import { AgentsList } from './components/agents/AgentsList';
 import { AgentForm } from './components/agents/AgentForm';
 import { AgentDetails } from './components/agents/AgentDetails';
+import AgentWorkflowManager from './components/agents/AgentWorkflowManager';
 import LoginSuccess from './components/auth/login-success';
 import SDUIAdmin from './components/sdui/SDUIAdmin';
 import { Toaster } from 'react-hot-toast';
+import SqlBuilder from './components/sqlBuilder/sqlBuilder';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -123,6 +125,28 @@ const AppRoutes = () => {
         >
           <Route index element={<SDUIAdmin />} />
         </Route>
+      <Route
+        path="/sql-builder"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<SqlBuilder />} />
+      </Route>
+      
+      {/* Agent Workflow Manager Route */}
+      <Route
+        path="/agent-workflows"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<AgentWorkflowManager />} />
+      </Route>
     </Routes>
   );
 };
