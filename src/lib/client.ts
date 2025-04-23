@@ -2,7 +2,8 @@ import axios from 'axios';
 
 // Create an axios instance with default config
 export const api = axios.create({
-  baseURL: process.env.REACT_APP_API_URL || 'http://localhost:3000',
+  // Use Vite's environment variable system
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/json',
   },

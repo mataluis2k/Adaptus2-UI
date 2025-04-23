@@ -15,6 +15,10 @@ export default defineConfig({
     // The following proxies any request starting with /api, /img, or /ui
     // to your Express server on port 3000.
     proxy: {
+      '/js': {
+        target: 'http://localhost:3000',
+        changeOrigin: true,
+      },
       '/sdui': {
         target: 'http://localhost:3000',
         changeOrigin: true,

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { DashboardLayout } from './components/layout/DashboardLayout';
 import { ContentView } from './components/dashboard/ContentView';
@@ -151,11 +151,121 @@ const AppRoutes = () => {
   );
 };
 
+// First, let's create a store or ref to hold the chat widget instance globally
+const chatWidgetRef = { current: null };
+
+// Modify the ChatWidgetLoader component
+const ChatWidgetLoader = () => {
+  const token = useAuthStore((state) => state.token);
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!token || location.pathname === '/login' || location.pathname === '/login-success') {
+      // Clean up chat widget if it exists when token is removed or on login pages
+      if (chatWidgetRef.current?.cleanup) {
+        chatWidgetRef.current.cleanup();
+        chatWidgetRef.current = null;
+        
+        // Remove the scripts
+        const scripts = document.querySelectorAll('script');
+        scripts.forEach(script => {
+          if (
+            script.src.includes('socket.io') ||
+            script.src.includes('marked') ||
+            script.src.includes('chat-rag2.js')
+          ) {
+            document.head.removeChild(script);
+          }
+        });
+      }
+      return;
+    }
+
+    const loadScriptsSequentially = async () => {
+      try {
+        const socketScript = document.createElement('script');
+        socketScript.src = 'https://cdn.socket.io/4.5.4/socket.io.min.js';
+        await new Promise((resolve, reject) => {
+          socketScript.onload = resolve;
+          socketScript.onerror = reject;
+          document.head.appendChild(socketScript);
+        });
+
+        const markedScript = document.createElement('script');
+        markedScript.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+        await new Promise((resolve, reject) => {
+          markedScript.onload = resolve;
+          markedScript.onerror = reject;
+          document.head.appendChild(markedScript);
+        });
+
+        const chatScript = document.createElement('script');
+        chatScript.src = '/js/chat-rag2.js';
+        await new Promise((resolve, reject) => {
+          chatScript.onload = () => {
+            chatWidgetRef.current = new (window as any).ChatWidget({
+              websocketUrl: 'ws://localhost:3007',
+              position: 'bottom-right',
+              service: 'chatbot',
+              theme: {
+                primary: '#007bff',
+                secondary: '#e9ecef',
+                text: '#212529'
+              },
+              authToken: token
+            });
+            resolve(null);
+          };
+          chatScript.onerror = reject;
+          document.head.appendChild(chatScript);
+        });
+      } catch (error) {
+        console.error('Error loading chat widget scripts:', error);
+      }
+    };
+
+    loadScriptsSequentially();
+
+    return () => {
+      if (chatWidgetRef.current?.cleanup) {
+        chatWidgetRef.current.cleanup();
+        chatWidgetRef.current = null;
+      }
+    };
+  }, [token, location.pathname]);
+
+  return null;
+};
+
+// Modify your logout function in auth.ts or wherever it's defined
+export const logout = () => {
+  // Clean up chat widget before logging out
+  if (chatWidgetRef.current?.cleanup) {
+    chatWidgetRef.current.cleanup();
+    chatWidgetRef.current = null;
+    
+    // Remove the scripts
+    const scripts = document.querySelectorAll('script');
+    scripts.forEach(script => {
+      if (
+        script.src.includes('socket.io') ||
+        script.src.includes('marked') ||
+        script.src.includes('chat-rag2.js')
+      ) {
+        document.head.removeChild(script);
+      }
+    });
+  }
+
+  // Your existing logout logic
+  localStorage.removeItem('token');
+  window.location.href = '/login';
+};
+
 export const App = () => {
   console.log('App rendering');
   const setToken = useAuthStore((state) => state.setToken);
   
-  // Initialize auth from localStorage if token exists
   useEffect(() => {
     const storedToken = localStorage.getItem('token');
     if (storedToken) {
@@ -175,6 +285,7 @@ export const App = () => {
             }}
           />
           <AppRoutes />
+          <ChatWidgetLoader />
         </ThemeProvider>
       </QueryClientProvider>
     </BrowserRouter>

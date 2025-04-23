@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Copy, Save, FileCode } from 'lucide-react';
-import axios from 'axios'; // Or use your existing API client
+import { api } from '../../lib/client'; // Import the api client
 
 // This is a simplified version - in a real implementation you would import:
 // import CodeMirror from '@uiw/react-codemirror';
@@ -8,13 +8,6 @@ import axios from 'axios'; // Or use your existing API client
 // import { javascript } from '@codemirror/lang-javascript';
 // import { python } from '@codemirror/lang-python';
 // import { json } from '@codemirror/lang-json';
-
-// Create a simple API client if you don't have one
-const api = {
-  post: (url: string, data: any) => {
-    return axios.post(url, data);
-  }
-};
 
 const SqlBuilder = () => {
   const [prompt, setPrompt] = useState('');
@@ -68,6 +61,19 @@ const SqlBuilder = () => {
     return highlighted;
   };
 
+  const cleanupCodeResponse = (code: string): string => {
+    // Remove markdown code block syntax if present
+    code = code.replace(/^```[\w]*\n/, '').replace(/\n```$/, '');
+    
+    // Remove extra blank lines
+    code = code.replace(/\n\s*\n\s*\n/g, '\n\n');
+    
+    // Trim whitespace
+    code = code.trim();
+    
+    return code;
+  };
+
   const handleGenerateCode = async () => {
     if (!prompt.trim()) {
       showNotification('Please enter a prompt', 'error');
@@ -77,15 +83,16 @@ const SqlBuilder = () => {
     setIsLoading(true);
     
     try {
-      // Call the API to generate code
       const response = await api.post('/api/generate-code', {
-        prompt,
+        userQuery: prompt,
         language,
         fileName: fileName || undefined
       });
-      
+
       if (response.data && response.data.code) {
-        setGeneratedCode(response.data.code);
+        // Clean up the code before setting it
+        const cleanedCode = cleanupCodeResponse(response.data.code);
+        setGeneratedCode(cleanedCode);
         showNotification('Code generated successfully!', 'success');
       } else {
         throw new Error('Invalid response format');
@@ -96,17 +103,6 @@ const SqlBuilder = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleCopyCode = () => {
-    if (!generatedCode) {
-      showNotification('No code to copy', 'error');
-      return;
-    }
-    
-    navigator.clipboard.writeText(generatedCode)
-      .then(() => showNotification('Code copied to clipboard!', 'success'))
-      .catch(() => showNotification('Failed to copy code', 'error'));
   };
 
   const handleSaveCode = async () => {
@@ -121,13 +117,12 @@ const SqlBuilder = () => {
     }
     
     try {
-      // Call the API to save the code
       const response = await api.post('/api/save-code', {
         code: generatedCode,
         fileName,
         language
       });
-      
+
       if (response.data && response.data.success) {
         showNotification(`Code saved as ${fileName}!`, 'success');
       } else {
@@ -139,32 +134,47 @@ const SqlBuilder = () => {
     }
   };
 
+  const handleCopyCode = () => {
+    if (!generatedCode) {
+      showNotification('No code to copy', 'error');
+      return;
+    }
+    
+    navigator.clipboard.writeText(generatedCode)
+      .then(() => showNotification('Code copied to clipboard!', 'success'))
+      .catch(() => showNotification('Failed to copy code', 'error'));
+  };
+
   const showNotification = (message: string, type: 'success' | 'error') => {
     setNotification({ show: true, message, type });
     setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-[calc(100vh-4rem)] bg-gray-100 pb-6">
       {/* Sidebar */}
       <div className="w-1/4 bg-white p-4 shadow-md flex flex-col">
         <h2 className="text-xl font-bold mb-4">SQL Builder</h2>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Describe what you want to create:
-        </label>
-        <textarea
-          className="flex-grow p-3 border rounded-md resize-none mb-4"
-          placeholder="Describe the SQL view, report, or visualization you want to generate..."
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-        />
-        <button
-          className={`w-full p-2 rounded-md text-white font-medium ${isLoading ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'}`}
-          onClick={handleGenerateCode}
-          disabled={isLoading}
-        >
-          {isLoading ? 'Generating...' : 'Generate Code'}
-        </button>
+        <div className="flex flex-col h-full">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Describe what you want to create:
+          </label>
+          <textarea
+            className="flex-1 p-3 border rounded-md mb-4 resize-none"
+            placeholder="Describe the SQL view, report, or visualization you want to generate..."
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+          <button
+            className={`w-full p-2 rounded-md text-white font-medium ${
+              isLoading ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'
+            }`}
+            onClick={handleGenerateCode}
+            disabled={isLoading}
+          >
+            {isLoading ? 'Generating...' : 'Generate Code'}
+          </button>
+        </div>
       </div>
 
       {/* Main Content */}
@@ -210,33 +220,30 @@ const SqlBuilder = () => {
         </div>
 
         {/* Code Editor with Line Numbers */}
-        <div className="flex-grow p-4 bg-gray-100 overflow-hidden">
-          <div className="h-full bg-white shadow-md rounded-md flex flex-col">
+        <div className="flex-1 p-4 pb-0 bg-gray-100 overflow-hidden">
+          <div className="h-full bg-white shadow-md rounded-md flex flex-col mb-6">
             <div className="p-2 bg-gray-800 text-gray-200 text-sm rounded-t-md">
               Generated Code
             </div>
             
             {/* Code Editor with Line Numbers */}
-            <div className="flex-grow flex overflow-hidden">
+            <div className="flex-1 flex overflow-hidden">
               {/* Line Numbers Column */}
-              <div className="bg-gray-100 py-4 text-right pr-2 text-gray-500 font-mono text-sm border-r border-gray-200 min-w-12 overflow-y-auto select-none">
+              <div className="bg-gray-100 py-4 text-right pr-2 text-gray-500 font-mono text-sm border-r border-gray-200 min-w-12">
                 {lineNumbers.map(num => (
                   <div key={num} className="h-6 px-2">{num}</div>
                 ))}
               </div>
               
-                              {/* This would be replaced with actual CodeMirror in a real implementation */}
-              <div className="flex-grow relative">
-                {/* Syntax highlighted view (read-only) */}
+              {/* Code Content */}
+              <div className="flex-1 relative">
                 <pre 
-                  className="absolute top-0 left-0 w-full h-full py-4 px-4 font-mono text-sm overflow-auto m-0"
+                  className="absolute inset-0 py-4 px-4 font-mono text-sm overflow-auto m-0"
                   dangerouslySetInnerHTML={{ __html: applySyntaxHighlighting(generatedCode) }}
                   style={{ pointerEvents: 'none' }}
                 />
-                
-                {/* Actual editable textarea (transparent, but captures input) */}
                 <textarea
-                  className="absolute top-0 left-0 w-full h-full py-4 px-4 font-mono text-sm resize-none bg-transparent outline-none caret-black"
+                  className="absolute inset-0 py-4 px-4 font-mono text-sm resize-none bg-transparent outline-none caret-black"
                   value={generatedCode}
                   onChange={(e) => setGeneratedCode(e.target.value)}
                   spellCheck="false"
