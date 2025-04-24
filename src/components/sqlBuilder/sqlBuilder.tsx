@@ -16,6 +16,9 @@ const SqlBuilder = () => {
   const [language, setLanguage] = useState('sql');
   const [isLoading, setIsLoading] = useState(false);
   const [notification, setNotification] = useState({ show: false, message: '', type: '' });
+  const [queryResults, setQueryResults] = useState<any[] | null>(null);
+  const [isTestingQuery, setIsTestingQuery] = useState(false);
+  const [activeTab, setActiveTab] = useState<'code' | 'results'>('code');
 
   // Generate line numbers for the code
   const lineNumbers = generatedCode ? generatedCode.split('\n').map((_, i) => i + 1) : [1];
@@ -112,14 +115,14 @@ const SqlBuilder = () => {
     }
     
     if (!fileName.trim()) {
-      showNotification('Please enter a file name', 'error');
+      showNotification('Please enter a Report name', 'error');
       return;
     }
     
     try {
       const response = await api.post('/api/save-code', {
-        code: generatedCode,
-        fileName,
+        sqlQuery: generatedCode,
+        reportName:fileName,
         language
       });
 
@@ -143,6 +146,34 @@ const SqlBuilder = () => {
     navigator.clipboard.writeText(generatedCode)
       .then(() => showNotification('Code copied to clipboard!', 'success'))
       .catch(() => showNotification('Failed to copy code', 'error'));
+  };
+
+  const handleTestQuery = async () => {
+    if (!generatedCode) {
+      showNotification('No query to test', 'error');
+      return;
+    }
+
+    setIsTestingQuery(true);
+    try {
+      const response = await api.post('/api/run-query', {
+        sql: generatedCode
+      });
+
+      if (response.data && response.data.data) {
+        setQueryResults(response.data.data);
+        setActiveTab('results');
+        showNotification('Query executed successfully!', 'success');
+      } else {
+        throw new Error('No results returned from query');
+      }
+    } catch (error) {
+      console.error('Error testing query:', error);
+      setQueryResults(null);
+      showNotification('Error executing query. Please check your syntax.', 'error');
+    } finally {
+      setIsTestingQuery(false);
+    }
   };
 
   const showNotification = (message: string, type: 'success' | 'error') => {
@@ -222,33 +253,112 @@ const SqlBuilder = () => {
         {/* Code Editor with Line Numbers */}
         <div className="flex-1 p-4 pb-0 bg-gray-100 overflow-hidden">
           <div className="h-full bg-white shadow-md rounded-md flex flex-col mb-6">
-            <div className="p-2 bg-gray-800 text-gray-200 text-sm rounded-t-md">
-              Generated Code
+            <div className="bg-gray-800 text-gray-200 text-sm rounded-t-md">
+              {/* Tab Headers */}
+              <div className="flex border-b border-gray-700">
+                <button
+                  className={`px-4 py-2 ${
+                    activeTab === 'code'
+                      ? 'bg-gray-700 text-white'
+                      : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                  }`}
+                  onClick={() => setActiveTab('code')}
+                >
+                  Generated Code
+                </button>
+                {queryResults && (
+                  <button
+                    className={`px-4 py-2 ${
+                      activeTab === 'results'
+                        ? 'bg-gray-700 text-white'
+                        : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                    }`}
+                    onClick={() => setActiveTab('results')}
+                  >
+                    Results
+                  </button>
+                )}
+                <div className="flex-1 flex justify-end pr-2">
+                  <button
+                    className={`px-4 py-1 my-1 rounded ${
+                      isTestingQuery
+                        ? 'bg-blue-500 cursor-wait'
+                        : 'bg-blue-600 hover:bg-blue-700'
+                    } text-white text-sm`}
+                    onClick={handleTestQuery}
+                    disabled={isTestingQuery || !generatedCode}
+                  >
+                    {isTestingQuery ? 'Running...' : 'Test Query'}
+                  </button>
+                </div>
+              </div>
             </div>
-            
-            {/* Code Editor with Line Numbers */}
+
+            {/* Content Area */}
             <div className="flex-1 flex overflow-hidden">
-              {/* Line Numbers Column */}
-              <div className="bg-gray-100 py-4 text-right pr-2 text-gray-500 font-mono text-sm border-r border-gray-200 min-w-12">
-                {lineNumbers.map(num => (
-                  <div key={num} className="h-6 px-2">{num}</div>
-                ))}
-              </div>
-              
-              {/* Code Content */}
-              <div className="flex-1 relative">
-                <pre 
-                  className="absolute inset-0 py-4 px-4 font-mono text-sm overflow-auto m-0"
-                  dangerouslySetInnerHTML={{ __html: applySyntaxHighlighting(generatedCode) }}
-                  style={{ pointerEvents: 'none' }}
-                />
-                <textarea
-                  className="absolute inset-0 py-4 px-4 font-mono text-sm resize-none bg-transparent outline-none caret-black"
-                  value={generatedCode}
-                  onChange={(e) => setGeneratedCode(e.target.value)}
-                  spellCheck="false"
-                />
-              </div>
+              {activeTab === 'code' ? (
+                <>
+                  {/* Line Numbers Column */}
+                  <div className="bg-gray-100 py-4 text-right pr-2 text-gray-500 font-mono text-sm border-r border-gray-200 min-w-12">
+                    {lineNumbers.map(num => (
+                      <div key={num} className="h-6 px-2">{num}</div>
+                    ))}
+                  </div>
+                  
+                  {/* Code Content */}
+                  <div className="flex-1 relative">
+                    <pre 
+                      className="absolute inset-0 py-4 px-4 font-mono text-sm overflow-auto m-0"
+                      dangerouslySetInnerHTML={{ __html: applySyntaxHighlighting(generatedCode) }}
+                      style={{ pointerEvents: 'none' }}
+                    />
+                    <textarea
+                      className="absolute inset-0 py-4 px-4 font-mono text-sm resize-none bg-transparent outline-none caret-black"
+                      value={generatedCode}
+                      onChange={(e) => setGeneratedCode(e.target.value)}
+                      spellCheck="false"
+                    />
+                  </div>
+                </>
+              ) : (
+                /* Results Table */
+                <div className="flex-1 overflow-auto p-4">
+                  {queryResults && queryResults.length > 0 ? (
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          {Object.keys(queryResults[0]).map((header) => (
+                            <th
+                              key={header}
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              {header}
+                            </th>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {queryResults.map((row, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {Object.values(row).map((value: any, colIndex) => (
+                              <td
+                                key={colIndex}
+                                className="px-6 py-4 whitespace-nowrap text-sm text-gray-500"
+                              >
+                                {value?.toString() ?? 'null'}
+                              </td>
+                            ))}
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="text-center text-gray-500 mt-4">
+                      No results found
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

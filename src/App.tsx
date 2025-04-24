@@ -20,6 +20,7 @@ import LoginSuccess from './components/auth/login-success';
 import SDUIAdmin from './components/sdui/SDUIAdmin';
 import { Toaster } from 'react-hot-toast';
 import SqlBuilder from './components/sqlBuilder/sqlBuilder';
+import PageCloner from './components/pageCloner/PageCloner';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -147,6 +148,17 @@ const AppRoutes = () => {
       >
         <Route index element={<AgentWorkflowManager />} />
       </Route>
+      
+      <Route
+        path="/page-cloner"
+        element={
+          <ProtectedRoute>
+            <DashboardLayout />
+          </ProtectedRoute>
+        }
+      >
+        <Route index element={<PageCloner />} />
+      </Route>
     </Routes>
   );
 };
@@ -206,7 +218,7 @@ const ChatWidgetLoader = () => {
             chatWidgetRef.current = new (window as any).ChatWidget({
               websocketUrl: 'ws://localhost:3007',
               position: 'bottom-right',
-              service: 'chatbot',
+              service: 'chatbot-rag',
               theme: {
                 primary: '#007bff',
                 secondary: '#e9ecef',

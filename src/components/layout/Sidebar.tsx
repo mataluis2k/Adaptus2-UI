@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCMSStore } from '../../store/cms';
 import { getThemeClasses } from '../theme/ThemeProvider';
-import { LayoutDashboard, Settings, Server, Users, LogOut, Database } from 'lucide-react';
+import { LayoutDashboard, Settings, Server, Users, LogOut, Database, Copy } from 'lucide-react';
 import { logout } from '../../api/auth';
 
 export const Sidebar = () => {
@@ -83,6 +83,36 @@ export const Sidebar = () => {
           
           <div className="py-2 mt-4">
             <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+              Tools
+            </h2>
+          </div>
+          
+          <Link
+            to="/sql-builder"
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              location.pathname === '/sql-builder'
+                ? `${themeClasses.accent} text-white`
+                : `${themeClasses.text} ${themeClasses.hover}`
+            }`}
+          >
+            <Database className="h-5 w-5 mr-3" />
+            SQL Builder
+          </Link>
+
+          <Link
+            to="/page-cloner"
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              location.pathname === '/page-cloner'
+                ? `${themeClasses.accent} text-white`
+                : `${themeClasses.text} ${themeClasses.hover}`
+            }`}
+          >
+            <Copy className="h-5 w-5 mr-3" />
+            Page Cloner
+          </Link>
+          
+          <div className="py-2 mt-4">
+            <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Administration
             </h2>
           </div>
@@ -117,17 +147,6 @@ export const Sidebar = () => {
           >
             <Server className="h-5 w-5 mr-3" />
             SDUI Builder
-          </Link>
-          <Link
-            to="/sql-builder"
-            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
-              location.pathname === '/sql-builder'
-                ? `${themeClasses.accent} text-white`
-                : `${themeClasses.text} ${themeClasses.hover}`
-            }`}
-          >
-            <Database className="h-5 w-5 mr-3" />
-            SQL Builder
           </Link>
           {/* <Link
             to="/settings"
