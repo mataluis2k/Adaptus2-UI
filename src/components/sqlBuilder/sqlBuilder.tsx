@@ -19,6 +19,7 @@ const SqlBuilder = () => {
   const [queryResults, setQueryResults] = useState<any[] | null>(null);
   const [isTestingQuery, setIsTestingQuery] = useState(false);
   const [activeTab, setActiveTab] = useState<'code' | 'results'>('code');
+  const [isResearching, setIsResearching] = useState(false);
 
   // Generate line numbers for the code
   const lineNumbers = generatedCode ? generatedCode.split('\n').map((_, i) => i + 1) : [1];
@@ -176,6 +177,63 @@ const SqlBuilder = () => {
     }
   };
 
+  // Utility to check if a string is valid JSON and is an array of objects
+  const isJsonArrayOfObjects = (str: string) => {
+    try {
+      const parsed = JSON.parse(str);
+      return Array.isArray(parsed) && parsed.length > 0 && typeof parsed[0] === 'object';
+    } catch {
+      return false;
+    }
+  };
+
+  // Research handler
+  const handleResearch = async () => {
+    if (!prompt.trim()) {
+      showNotification('Please enter a prompt', 'error');
+      return;
+    }
+    setIsResearching(true);
+    setQueryResults(null);
+    try {
+      const response = await api.post('/api/userIntent', {
+        userQuery: prompt,
+        language,
+        fileName: fileName || undefined
+      });
+
+      // Try to handle JSON or text
+      if (response.data) {
+        let result = response.data.result ?? response.data; // support both {result: ...} and direct
+        if (typeof result === 'string' && isJsonArrayOfObjects(result)) {
+          setQueryResults(JSON.parse(result));
+          setActiveTab('results');
+          setGeneratedCode('');
+        } else if (typeof result === 'object' && Array.isArray(result)) {
+          setQueryResults(result);
+          setActiveTab('results');
+          setGeneratedCode('');
+        } else if (typeof result === 'string') {
+          setGeneratedCode(result);
+          setActiveTab('code');
+          setQueryResults(null);
+        } else {
+          setGeneratedCode(JSON.stringify(result, null, 2));
+          setActiveTab('code');
+          setQueryResults(null);
+        }
+        showNotification('Research completed!', 'success');
+      } else {
+        throw new Error('No result returned');
+      }
+    } catch (error) {
+      console.error('Error during research:', error);
+      showNotification('Error during research. Please try again.', 'error');
+    } finally {
+      setIsResearching(false);
+    }
+  };
+
   const showNotification = (message: string, type: 'success' | 'error') => {
     setNotification({ show: true, message, type });
     setTimeout(() => setNotification({ show: false, message: '', type: '' }), 3000);
@@ -196,15 +254,26 @@ const SqlBuilder = () => {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
           />
-          <button
-            className={`w-full p-2 rounded-md text-white font-medium ${
-              isLoading ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'
-            }`}
-            onClick={handleGenerateCode}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Generating...' : 'Generate Code'}
-          </button>
+          <div className="flex flex-col gap-2">
+            <button
+              className={`w-full p-2 rounded-md text-white font-medium ${
+                isResearching ? 'bg-purple-300' : 'bg-purple-600 hover:bg-purple-700'
+              }`}
+              onClick={handleResearch}
+              disabled={isResearching || isLoading}
+            >
+              {isResearching ? 'Researching...' : 'Research'}
+            </button>
+            <button
+              className={`w-full p-2 rounded-md text-white font-medium ${
+                isLoading ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'
+              }`}
+              onClick={handleGenerateCode}
+              disabled={isLoading || isResearching}
+            >
+              {isLoading ? 'Generating...' : 'Generate Code'}
+            </button>
+          </div>
         </div>
       </div>
 
@@ -275,7 +344,7 @@ const SqlBuilder = () => {
                     }`}
                     onClick={() => setActiveTab('results')}
                   >
-                    Results
+                    Data
                   </button>
                 )}
                 <div className="flex-1 flex justify-end pr-2">

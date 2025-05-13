@@ -218,7 +218,7 @@ const ChatWidgetLoader = () => {
             chatWidgetRef.current = new (window as any).ChatWidget({
               websocketUrl: 'ws://localhost:3007',
               position: 'bottom-right',
-              service: 'chatbot-rag',
+              service: 'chatbot',
               theme: {
                 primary: '#007bff',
                 secondary: '#e9ecef',
