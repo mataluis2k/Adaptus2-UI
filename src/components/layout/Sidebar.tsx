@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useCMSStore } from '../../store/cms';
 import { getThemeClasses } from '../theme/ThemeProvider';
-import { LayoutDashboard, Settings, Server, Users, LogOut, Database, Copy } from 'lucide-react';
+import { LayoutDashboard, Settings, Server, Users, LogOut, Database, Copy, PanelRight, FileCode } from 'lucide-react';
 import { logout } from '../../api/auth';
 
 export const Sidebar = () => {
@@ -59,8 +59,6 @@ export const Sidebar = () => {
             E-commerce Analytics
           </Link>
 
-       
-
           <div className="py-2">
             <h2 className="px-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">
               Content
@@ -91,11 +89,11 @@ export const Sidebar = () => {
             to="/sql-builder"
             className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
               location.pathname === '/sql-builder'
-                ? `${themeClasses.accent} text-white`
-                : `${themeClasses.text} ${themeClasses.hover}`
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
             }`}
           >
-            <Database className="h-5 w-5 mr-3" />
+            <FileCode className="h-5 w-5 mr-3" />
             SQL Builder
           </Link>
 
@@ -147,6 +145,17 @@ export const Sidebar = () => {
           >
             <Server className="h-5 w-5 mr-3" />
             SDUI Builder
+          </Link>
+          <Link
+            to="/plugin-generator"
+            className={`flex items-center px-4 py-2 rounded-md transition-colors duration-200 ${
+              location.pathname === '/plugin-generator'
+                ? 'bg-blue-100 text-blue-700'
+                : 'text-gray-700 hover:bg-gray-100'
+            }`}
+          >
+            <PanelRight className="h-5 w-5 mr-3" />
+            Plugin Generator
           </Link>
           {/* <Link
             to="/settings"

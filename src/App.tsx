@@ -21,6 +21,7 @@ import SDUIAdmin from './components/sdui/SDUIAdmin';
 import { Toaster } from 'react-hot-toast';
 import SqlBuilder from './components/sqlBuilder/sqlBuilder';
 import PageCloner from './components/pageCloner/PageCloner';
+import PluginGenerator from './components/pluginGenerator/pluginGenerator';
 
 // Create a client
 const queryClient = new QueryClient({
@@ -158,6 +159,9 @@ const AppRoutes = () => {
         }
       >
         <Route index element={<PageCloner />} />
+      </Route>
+      <Route path="/plugin-generator" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+        <Route index element={<PluginGenerator />} />
       </Route>
     </Routes>
   );
